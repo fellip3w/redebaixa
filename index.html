@@ -1,0 +1,527 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rede Baixa</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap');
+
+        :root {
+            --primary-color: #0061E0;
+            --secondary-color: #F3F4F6;
+            --background-color: #EBF2FA;
+            --text-color: #374151;
+            --heading-color: #111827;
+            --card-bg-color: #ffffff;
+            --shadow-color: rgba(0, 50, 150, 0.1);
+            --success-color: #10B981;
+            --danger-color: #EF4444;
+            --font-family: 'Poppins', sans-serif;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: var(--font-family);
+            background-color: var(--background-color);
+            color: var(--text-color);
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 20px auto;
+            padding: 0 15px;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        header h1 {
+            color: var(--heading-color);
+            font-size: 2.5em;
+        }
+
+        .main-actions {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1em;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            flex-grow: 1;
+        }
+        
+        .btn svg { width: 20px; height: 20px; }
+        .btn-primary { background-color: var(--primary-color); color: white; }
+        .btn-primary:hover { background-color: #004AB6; transform: translateY(-2px); }
+        .btn-success { background-color: var(--success-color); color: white; }
+        .btn-success:hover { background-color: #059669; transform: translateY(-2px); }
+        .btn-secondary { background-color: #6B7280; color: white; }
+        .btn-secondary:hover { background-color: #4B5563; }
+
+        .card {
+            background-color: var(--card-bg-color);
+            border-radius: 12px;
+            box-shadow: 0 8px 25px var(--shadow-color);
+            padding: 25px;
+            margin-bottom: 20px;
+        }
+
+        .card-header {
+            font-size: 1.5em;
+            font-weight: 700;
+            margin-bottom: 20px;
+            color: var(--heading-color);
+        }
+
+        .player-list { list-style: none; }
+        .player-list-item {
+            display: flex;
+            align-items: center;
+            padding: 15px 10px;
+            border-bottom: 1px solid #E5E7EB;
+            transition: background-color 0.2s ease;
+        }
+        .player-list-item:nth-child(even) { background-color: var(--secondary-color); }
+        .player-list-item:last-child { border-bottom: none; }
+
+        .player-info { display: flex; align-items: center; flex-grow: 1; }
+        .player-info input[type="checkbox"] { width: 20px; height: 20px; margin-right: 15px; }
+        .player-name { font-weight: 600; }
+        .player-level { font-size: 0.9em; color: #6B7280; margin-left: 8px; }
+        .guest-tag { font-size: 0.8em; font-weight: bold; color: var(--success-color); margin-left: 8px; }
+
+        .player-actions { margin-left: auto; display: flex; gap: 10px; }
+        .player-actions button { background: none; border: none; cursor: pointer; padding: 5px; }
+        .player-actions svg { width: 20px; height: 20px; fill: #9CA3AF; transition: fill 0.2s; }
+        .player-actions button:hover svg { fill: var(--text-color); }
+
+        .teams-result-card { display: none; }
+        .teams-container { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; }
+        .team, .revezamento { padding: 20px; border-radius: 8px; }
+        .team { background-color: var(--secondary-color); }
+        .team h4, .revezamento h4 { font-size: 1.2em; margin-bottom: 15px; color: var(--heading-color); border-bottom: 2px solid var(--primary-color); padding-bottom: 5px;}
+        .team ul, .revezamento ul { list-style: none; }
+        .team li, .revezamento li { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px dashed #D1D5DB; }
+        .team li:last-child, .revezamento li:last-child { border-bottom: none; }
+        .revezamento { background-color: #FEF3C7; margin-top: 20px; }
+        .revezamento h4 { border-bottom-color: #FBBF24; }
+        
+        /* --- MODAL STYLES --- */
+        .modal {
+            display: none; position: fixed; z-index: 1000; left: 0; top: 0;
+            width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.5);
+            align-items: center; justify-content: center;
+        }
+        .modal.is-open { display: flex; }
+        .modal-content {
+            background-color: #fff; margin: auto; padding: 30px;
+            border-radius: 12px; width: 90%; max-width: 500px;
+            position: relative; animation: slideIn 0.3s ease-out;
+        }
+        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .modal-title { font-size: 1.5em; color: var(--heading-color); }
+        .close-button { background: none; border: none; font-size: 2em; cursor: pointer; color: #9CA3AF; }
+        
+        .form-group { margin-bottom: 20px; }
+        .form-group label { display: block; margin-bottom: 8px; font-weight: 600; }
+        .form-group input { width: 100%; padding: 12px; border-radius: 8px; border: 1px solid #D1D5DB; font-size: 1em; }
+        .form-group input:focus { outline: none; border-color: var(--primary-color); box-shadow: 0 0 0 2px rgba(0, 97, 224, 0.2); }
+
+        @keyframes slideIn { from { transform: translateY(-30px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+
+        /* Share Image Specific Styles */
+        .share-image-container {
+            display: none; /* Hidden by default */
+            position: absolute; /* Take out of flow */
+            left: -9999px; /* Move off-screen */
+            top: -9999px;
+            padding: 40px;
+            background-color: white;
+            font-family: var(--font-family);
+            color: #111827;
+        }
+        .share-image-container h2 { text-align: center; font-size: 2.5em; margin-bottom: 30px; }
+        .share-teams-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 30px; }
+        .share-team { padding: 20px; border: 2px solid #E5E7EB; border-radius: 12px; }
+        .share-team h3 { font-size: 1.8em; padding-bottom: 10px; border-bottom: 2px solid var(--primary-color); margin-bottom: 15px; }
+        .share-team ul { list-style: none; padding: 0; }
+        .share-team li { font-size: 1.2em; padding: 8px 5px; border-bottom: 1px solid #f0f0f0; }
+        .share-team li:last-child { border-bottom: none; }
+        .share-revezamento h3 { border-bottom-color: #FBBF24; }
+        
+        @media (max-width: 600px) {
+            header h1 { font-size: 2em; }
+            .main-actions { flex-direction: column; }
+            .btn { padding: 15px; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <header>
+            <h1>Sorteador de Times</h1>
+            <p>Organize sua patota de vôlei de forma justa e rápida!</p>
+        </header>
+
+        <div class="main-actions">
+            <button class="btn btn-primary" onclick="openModal('addPlayer')">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path d="M11 10a1 1 0 10-2 0v1H8a1 1 0 100 2h1v1a1 1 0 102 0v-1h1a1 1 0 100-2h-1v-1z" /><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm-7-8a7 7 0 1114 0 7 7 0 01-14 0z" clip-rule="evenodd" /></svg>
+                Cadastrar Jogador
+            </button>
+            <button class="btn btn-success" onclick="openModal('addGuest')">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd" /></svg>
+                Adicionar Convidado
+            </button>
+        </div>
+
+        <div class="card">
+            <div class="card-header">Jogadores Presentes</div>
+            <div id="guestList" class="player-list"></div>
+            <div id="playerList" class="player-list"></div>
+            <button class="btn btn-primary" onclick="generateTeams()" style="width: 100%; margin-top: 20px;">
+                Formar Times
+            </button>
+        </div>
+
+        <div class="card teams-result-card" id="teamsResultCard">
+            <div class="card-header">Times Formados</div>
+            <div id="teamsResult"></div>
+             <button class="btn btn-success" onclick="shareTeams()" style="width: 100%; margin-top: 20px;">
+                Compartilhar no WhatsApp
+            </button>
+        </div>
+    </div>
+    
+    <!-- Modal Structure -->
+    <div id="appModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modalTitle" class="modal-title"></h2>
+                <button class="close-button" onclick="closeModal()">&times;</button>
+            </div>
+            <form id="modalForm" onsubmit="event.preventDefault(); handleFormSubmit();">
+                <input type="hidden" id="editPlayerId">
+                <div class="form-group">
+                    <label for="modalPlayerName">Nome</label>
+                    <input type="text" id="modalPlayerName" required>
+                </div>
+                <div class="form-group">
+                    <label for="modalPlayerLevel">Nível (0 a 10)</label>
+                    <input type="number" id="modalPlayerLevel" min="0" max="10" required>
+                </div>
+                <button type="submit" id="modalSubmitButton" class="btn btn-primary" style="width: 100%;"></button>
+            </form>
+        </div>
+    </div>
+    
+    <!-- Hidden container for generating the shareable image -->
+    <div id="shareContainer" class="share-image-container"></div>
+
+
+<script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-database.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script>
+    const firebaseConfig = { databaseURL: "https://redebaixa-89e65-default-rtdb.firebaseio.com/" };
+    firebase.initializeApp(firebaseConfig);
+    const database = firebase.database();
+    const playersRef = database.ref('players');
+
+    // --- MODAL CONTROLS ---
+    const appModal = document.getElementById('appModal');
+    let currentModalMode = '';
+
+    function openModal(mode, data = {}) {
+        currentModalMode = mode;
+        const title = document.getElementById('modalTitle');
+        const submitBtn = document.getElementById('modalSubmitButton');
+        const nameInput = document.getElementById('modalPlayerName');
+        const levelInput = document.getElementById('modalPlayerLevel');
+        const idInput = document.getElementById('editPlayerId');
+
+        nameInput.value = data.name || '';
+        levelInput.value = data.level || '';
+        idInput.value = data.id || '';
+
+        switch (mode) {
+            case 'addPlayer':
+                title.innerText = 'Cadastrar Novo Jogador';
+                submitBtn.innerText = 'Salvar Jogador';
+                break;
+            case 'editPlayer':
+                title.innerText = 'Editar Jogador';
+                submitBtn.innerText = 'Salvar Alterações';
+                break;
+            case 'addGuest':
+                title.innerText = 'Adicionar Convidado';
+                submitBtn.innerText = 'Adicionar à Lista';
+                break;
+        }
+        appModal.classList.add('is-open');
+    }
+
+    function closeModal() {
+        appModal.classList.remove('is-open');
+    }
+
+    function handleFormSubmit() {
+        const name = document.getElementById('modalPlayerName').value.trim();
+        const level = parseInt(document.getElementById('modalPlayerLevel').value);
+        const id = document.getElementById('editPlayerId').value;
+
+        if (!name || isNaN(level) || level < 0 || level > 10) {
+            alert('Por favor, preencha os campos com valores válidos.');
+            return;
+        }
+
+        switch (currentModalMode) {
+            case 'addPlayer':
+                playersRef.push({ name, level });
+                break;
+            case 'editPlayer':
+                playersRef.child(id).update({ name, level });
+                break;
+            case 'addGuest':
+                addGuestToList({ name, level });
+                break;
+        }
+        closeModal();
+    }
+    
+    window.onclick = function(event) {
+        if (event.target == appModal) {
+            closeModal();
+        }
+    }
+
+    // --- PLAYER & GUEST MANAGEMENT ---
+    function deletePlayer(id, name) {
+        if (confirm(`Tem certeza que deseja excluir ${name}? Esta ação não pode ser desfeita.`)) {
+            playersRef.child(id).remove();
+        }
+    }
+
+    function addGuestToList(guestData) {
+        const guestList = document.getElementById('guestList');
+        const guestId = `guest-${Date.now()}`;
+        const guest = { id: guestId, ...guestData, isGuest: true };
+
+        const li = document.createElement('div');
+        li.className = 'player-list-item';
+        li.id = guestId;
+        li.innerHTML = `
+            <div class="player-info">
+                <input type="checkbox" class="player-checkbox" value='${JSON.stringify(guest)}' checked>
+                <div>
+                    <span class="player-name">${guest.name}</span>
+                    <span class="player-level">(Nível ${guest.level})</span>
+                    <span class="guest-tag">Convidado</span>
+                </div>
+            </div>
+            <div class="player-actions">
+                <button onclick="document.getElementById('${guestId}').remove()">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" /></svg>
+                </button>
+            </div>
+        `;
+        guestList.prepend(li);
+    }
+    
+    function loadPlayers() {
+        playersRef.orderByChild('name').on('value', (snapshot) => {
+            const playerList = document.getElementById('playerList');
+            playerList.innerHTML = '';
+            const players = snapshot.val();
+            if (players) {
+                for (let id in players) {
+                    const player = {id, ...players[id]};
+                    const li = document.createElement('div');
+                    li.className = 'player-list-item';
+                    li.innerHTML = `
+                        <label class="player-info">
+                            <input type="checkbox" class="player-checkbox" value='${JSON.stringify(player)}'>
+                            <div>
+                               <span class="player-name">${player.name}</span>
+                               <span class="player-level">(Nível ${player.level})</span>
+                            </div>
+                        </label>
+                        <div class="player-actions">
+                            <button onclick='openModal("editPlayer", ${JSON.stringify(player)})'>
+                               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path d="M17.414 2.586a2 2 0 00-2.828 0L7 10.172V13h2.828l7.586-7.586a2 2 0 000-2.828z" /><path fill-rule="evenodd" d="M2 6a2 2 0 012-2h4a1 1 0 010 2H4v10h10v-4a1 1 0 112 0v4a2 2 0 01-2 2H4a2 2 0 01-2-2V6z" clip-rule="evenodd" /></svg>
+                            </button>
+                            <button onclick="deletePlayer('${id}', '${player.name.replace(/'/g, "\\'")}')">
+                               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd" /></svg>
+                            </button>
+                        </div>
+                    `;
+                    playerList.appendChild(li);
+                }
+            } else {
+                playerList.innerHTML = '<p style="text-align: center; padding: 20px;">Nenhum jogador cadastrado. Use o botão "Cadastrar Jogador" para começar.</p>';
+            }
+        });
+    }
+
+    // --- TEAM GENERATION & DISPLAY ---
+    let generatedTeamsData = {}; // Store data for sharing
+
+    function generateTeams() {
+        const checkboxes = document.querySelectorAll('.player-checkbox:checked');
+        let selectedPlayers = Array.from(checkboxes).map(cb => JSON.parse(cb.value));
+        const numPlayers = selectedPlayers.length;
+
+        if (numPlayers < 10) {
+            alert("São necessários pelo menos 10 jogadores para formar os times.");
+            return;
+        }
+        
+        selectedPlayers.sort((a, b) => b.level - a.level);
+
+        let teams = [], teamSums = [], revezamento = [], numTeams = 0;
+        let playersForTeams = [...selectedPlayers];
+
+        if (numPlayers === 13) revezamento.push(playersForTeams.pop());
+        if (numPlayers === 14) {
+            revezamento.push(playersForTeams.pop());
+            revezamento.push(playersForTeams.pop());
+        }
+
+        numTeams = (numPlayers <= 14) ? 2 : 3;
+        
+        for (let i = 0; i < numTeams; i++) {
+            teams.push([]);
+            teamSums.push(0);
+        }
+
+        playersForTeams.forEach(player => {
+            let minSumIndex = teamSums.indexOf(Math.min(...teamSums));
+            teams[minSumIndex].push(player);
+            teamSums[minSumIndex] += player.level;
+        });
+
+        generatedTeamsData = { teams, revezamento }; // Save for sharing
+        displayTeams(teams, teamSums, revezamento, numPlayers);
+    }
+
+    function displayTeams(teams, teamSums, revezamento, numPlayers) {
+        const teamsResultDiv = document.getElementById('teamsResult');
+        teamsResultDiv.innerHTML = '';
+        const teamsResultCard = document.getElementById('teamsResultCard');
+
+        const teamsContainer = document.createElement('div');
+        teamsContainer.className = 'teams-container';
+
+        teams.forEach((team, index) => {
+            const teamDiv = document.createElement('div');
+            teamDiv.className = 'team';
+            let playersHtml = '<ul>';
+            // Sort by level (desc) for display on screen
+            team.sort((a,b) => b.level - a.level).forEach(player => {
+                playersHtml += `<li><span>${player.name} ${player.isGuest ? ' <span class="guest-tag">Convidado</span>': ''}</span> <strong>${player.level}</strong></li>`;
+            });
+            playersHtml += '</ul>';
+            teamDiv.innerHTML = `<h4>Time ${index + 1} (Nível ${teamSums[index]})</h4>${playersHtml}`;
+            teamsContainer.appendChild(teamDiv);
+        });
+        
+        teamsResultDiv.appendChild(teamsContainer);
+
+        if (revezamento.length > 0) {
+            const revezamentoDiv = document.createElement('div');
+            revezamentoDiv.className = 'revezamento';
+            let revezamentoHtml = '<ul>';
+             revezamento.forEach(player => {
+                revezamentoHtml += `<li><span>${player.name}</span> <strong>${player.level}</strong></li>`;
+            });
+            revezamentoHtml += '</ul>';
+            let obsText = numPlayers === 13 ? '1 jogador no revezamento.' : '1 jogador no revezamento para cada time.';
+            revezamentoDiv.innerHTML = `<h4>Revezamento / Fora</h4><p>${obsText}</p>${revezamentoHtml}`;
+            teamsResultDiv.appendChild(revezamentoDiv);
+        } else if (numPlayers >= 15 && numPlayers <= 17) {
+            teamsResultDiv.innerHTML += '<p style="text-align:center; margin-top: 20px;"><strong>Observação:</strong> O último time será completado com jogadores dos outros times.</p>';
+        }
+
+        teamsResultCard.style.display = 'block';
+        teamsResultCard.scrollIntoView({ behavior: 'smooth' });
+    }
+
+    function shareTeams() {
+        const { teams, revezamento } = generatedTeamsData;
+        if (!teams || teams.length === 0) {
+            alert("Primeiro, gere os times para poder compartilhar!");
+            return;
+        }
+
+        const shareContainer = document.getElementById('shareContainer');
+        let shareHtml = '<h2>Times da Patota</h2><div class="share-teams-grid">';
+
+        teams.forEach((team, index) => {
+            shareHtml += `<div class="share-team"><h3>Time ${index + 1}</h3><ul>`;
+            // Sort by name for the shared image
+            team.sort((a,b) => a.name.localeCompare(b.name)).forEach(player => {
+                shareHtml += `<li>${player.name}</li>`;
+            });
+            shareHtml += `</ul></div>`;
+        });
+        
+        shareHtml += '</div>'; // close grid
+
+        if(revezamento.length > 0) {
+            shareHtml += `<div class="share-team share-revezamento" style="margin-top: 20px;"><h3>Revezamento</h3><ul>`;
+            revezamento.sort((a,b) => a.name.localeCompare(b.name)).forEach(player => {
+                shareHtml += `<li>${player.name}</li>`;
+            });
+            shareHtml += `</ul></div>`;
+        }
+
+        shareContainer.innerHTML = shareHtml;
+        shareContainer.style.display = 'block'; // Make it visible for html2canvas
+
+        html2canvas(shareContainer, { scale: 2 }).then(canvas => {
+            canvas.toBlob(function(blob) {
+                const file = new File([blob], "times-volei.png", { type: "image/png" });
+                if (navigator.canShare && navigator.canShare({ files: [file] })) {
+                    navigator.share({ files: [file], title: 'Times da Patota de Vôlei', text: 'Confira a formação dos times de hoje!' })
+                    .catch(error => console.log('Erro ao compartilhar', error));
+                } else {
+                     try {
+                        const link = document.createElement('a');
+                        link.href = URL.createObjectURL(blob);
+                        link.download = 'times-volei.png';
+                        link.click();
+                     } catch (err) {
+                        alert('Seu navegador não suporta compartilhamento. A imagem será baixada.');
+                     }
+                }
+            }, 'image/png');
+             shareContainer.style.display = 'none'; // Hide it again
+        });
+    }
+
+    window.onload = loadPlayers;
+</script>
+
+</body>
+</html>
