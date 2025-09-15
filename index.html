@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Rede Baixa</title>
+    <title>Sorteador de Times de Vôlei</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap');
 
@@ -17,14 +17,11 @@
             --shadow-color: rgba(0, 50, 150, 0.1);
             --success-color: #10B981;
             --danger-color: #EF4444;
+            --warning-color: #F59E0B;
             --font-family: 'Poppins', sans-serif;
         }
 
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
 
         body {
             font-family: var(--font-family);
@@ -33,42 +30,17 @@
             line-height: 1.6;
         }
 
-        .container {
-            max-width: 900px;
-            margin: 20px auto;
-            padding: 0 15px;
-        }
+        .container { max-width: 900px; margin: 20px auto; padding: 0 15px; }
 
-        header {
-            text-align: center;
-            margin-bottom: 30px;
-        }
+        header { text-align: center; margin-bottom: 30px; }
+        header h1 { color: var(--heading-color); font-size: 2.5em; }
 
-        header h1 {
-            color: var(--heading-color);
-            font-size: 2.5em;
-        }
-
-        .main-actions {
-            display: flex;
-            gap: 15px;
-            margin-bottom: 30px;
-            flex-wrap: wrap;
-        }
+        .main-actions { display: flex; gap: 15px; margin-bottom: 30px; flex-wrap: wrap; }
 
         .btn {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            padding: 12px 20px;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 1em;
-            font-weight: 600;
-            transition: all 0.3s ease;
-            flex-grow: 1;
+            display: flex; align-items: center; justify-content: center; gap: 8px;
+            padding: 12px 20px; border: none; border-radius: 8px; cursor: pointer;
+            font-size: 1em; font-weight: 600; transition: all 0.3s ease; flex-grow: 1;
         }
         
         .btn svg { width: 20px; height: 20px; }
@@ -76,31 +48,24 @@
         .btn-primary:hover { background-color: #004AB6; transform: translateY(-2px); }
         .btn-success { background-color: var(--success-color); color: white; }
         .btn-success:hover { background-color: #059669; transform: translateY(-2px); }
+        .btn-warning { background-color: var(--warning-color); color: white; }
+        .btn-warning:hover { background-color: #D97706; }
+        .btn-danger { background-color: var(--danger-color); color: white; }
+        .btn-danger:hover { background-color: #DC2626; }
         .btn-secondary { background-color: #6B7280; color: white; }
         .btn-secondary:hover { background-color: #4B5563; }
 
         .card {
-            background-color: var(--card-bg-color);
-            border-radius: 12px;
-            box-shadow: 0 8px 25px var(--shadow-color);
-            padding: 25px;
-            margin-bottom: 20px;
+            background-color: var(--card-bg-color); border-radius: 12px;
+            box-shadow: 0 8px 25px var(--shadow-color); padding: 25px; margin-bottom: 20px;
         }
 
-        .card-header {
-            font-size: 1.5em;
-            font-weight: 700;
-            margin-bottom: 20px;
-            color: var(--heading-color);
-        }
+        .card-header { font-size: 1.5em; font-weight: 700; margin-bottom: 20px; color: var(--heading-color); }
 
         .player-list { list-style: none; }
         .player-list-item {
-            display: flex;
-            align-items: center;
-            padding: 15px 10px;
-            border-bottom: 1px solid #E5E7EB;
-            transition: background-color 0.2s ease;
+            display: flex; align-items: center; padding: 15px 10px;
+            border-bottom: 1px solid #E5E7EB; transition: background-color 0.2s ease;
         }
         .player-list-item:nth-child(even) { background-color: var(--secondary-color); }
         .player-list-item:last-child { border-bottom: none; }
@@ -121,12 +86,13 @@
         .team, .revezamento { padding: 20px; border-radius: 8px; }
         .team { background-color: var(--secondary-color); }
         .team h4, .revezamento h4 { font-size: 1.2em; margin-bottom: 15px; color: var(--heading-color); border-bottom: 2px solid var(--primary-color); padding-bottom: 5px;}
-        .team ul, .revezamento ul { list-style: none; }
-        .team li, .revezamento li { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px dashed #D1D5DB; }
-        .team li:last-child, .revezamento li:last-child { border-bottom: none; }
+        .team ul, .revezamento ul { list-style: none; min-height: 50px; } /* Min-height for drop target */
+        .team li, .revezamento li { display: flex; justify-content: space-between; padding: 8px; border-radius: 6px; margin-bottom: 5px; background-color: #fff; border: 1px solid #E5E7EB; }
         .revezamento { background-color: #FEF3C7; margin-top: 20px; }
         .revezamento h4 { border-bottom-color: #FBBF24; }
-        
+        .sortable-ghost { opacity: 0.4; background-color: #cce5ff; }
+        .editable .team li, .editable .revezamento li { cursor: grab; }
+
         /* --- MODAL STYLES --- */
         .modal {
             display: none; position: fixed; z-index: 1000; left: 0; top: 0;
@@ -148,19 +114,14 @@
         .form-group input { width: 100%; padding: 12px; border-radius: 8px; border: 1px solid #D1D5DB; font-size: 1em; }
         .form-group input:focus { outline: none; border-color: var(--primary-color); box-shadow: 0 0 0 2px rgba(0, 97, 224, 0.2); }
 
+        .modal-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 25px; }
+        .confirmation-text { text-align: center; font-size: 1.1em; line-height: 1.7; }
+        .confirmation-text strong { color: var(--danger-color); }
+
         @keyframes slideIn { from { transform: translateY(-30px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
 
         /* Share Image Specific Styles */
-        .share-image-container {
-            display: none; /* Hidden by default */
-            position: absolute; /* Take out of flow */
-            left: -9999px; /* Move off-screen */
-            top: -9999px;
-            padding: 40px;
-            background-color: white;
-            font-family: var(--font-family);
-            color: #111827;
-        }
+        .share-image-container { display: none; position: absolute; left: -9999px; top: -9999px; padding: 40px; background-color: white; font-family: var(--font-family); color: #111827; }
         .share-image-container h2 { text-align: center; font-size: 2.5em; margin-bottom: 30px; }
         .share-teams-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 30px; }
         .share-team { padding: 20px; border: 2px solid #E5E7EB; border-radius: 12px; }
@@ -176,13 +137,15 @@
             .btn { padding: 15px; }
         }
     </style>
+    <!-- SortableJS Library for Drag and Drop -->
+    <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
 </head>
 <body>
 
     <div class="container">
         <header>
-            <h1>Sorteador de Times</h1>
-            <p>Organize sua patota de vôlei de forma justa e rápida!</p>
+            <h1>Rede Baixa - Sorteador</h1>
+            <p></p>
         </header>
 
         <div class="main-actions">
@@ -208,18 +171,19 @@
         <div class="card teams-result-card" id="teamsResultCard">
             <div class="card-header">Times Formados</div>
             <div id="teamsResult"></div>
-             <button class="btn btn-success" onclick="shareTeams()" style="width: 100%; margin-top: 20px;">
-                Compartilhar no WhatsApp
-            </button>
+            <div class="main-actions" style="margin-top: 20px;">
+                <button id="editTeamsBtn" class="btn btn-warning" onclick="toggleEditMode()">Editar Times</button>
+                <button class="btn btn-success" onclick="shareTeams()">Compartilhar no WhatsApp</button>
+            </div>
         </div>
     </div>
     
-    <!-- Modal Structure -->
-    <div id="appModal" class="modal">
+    <!-- Modal for Add/Edit/Guest -->
+    <div id="formModal" class="modal">
         <div class="modal-content">
             <div class="modal-header">
                 <h2 id="modalTitle" class="modal-title"></h2>
-                <button class="close-button" onclick="closeModal()">&times;</button>
+                <button class="close-button" onclick="closeModal('formModal')">&times;</button>
             </div>
             <form id="modalForm" onsubmit="event.preventDefault(); handleFormSubmit();">
                 <input type="hidden" id="editPlayerId">
@@ -235,6 +199,25 @@
             </form>
         </div>
     </div>
+
+    <!-- Modal for Delete Confirmation -->
+    <div id="deleteModal" class="modal">
+         <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">Confirmar Exclusão</h2>
+                <button class="close-button" onclick="closeModal('deleteModal')">&times;</button>
+            </div>
+            <p class="confirmation-text">
+                Você tem certeza que deseja excluir o jogador <strong id="deletePlayerName"></strong>?<br>
+                Esta ação não pode ser desfeita.
+            </p>
+            <div class="modal-actions">
+                <input type="hidden" id="deletePlayerId">
+                <button class="btn btn-secondary" onclick="closeModal('deleteModal')">Cancelar</button>
+                <button class="btn btn-danger" onclick="confirmDelete()">Excluir</button>
+            </div>
+        </div>
+    </div>
     
     <!-- Hidden container for generating the shareable image -->
     <div id="shareContainer" class="share-image-container"></div>
@@ -248,42 +231,50 @@
     firebase.initializeApp(firebaseConfig);
     const database = firebase.database();
     const playersRef = database.ref('players');
+    
+    // --- STATE MANAGEMENT ---
+    let generatedTeamsData = { teams: [], revezamento: [] };
+    let isEditMode = false;
+    let sortableInstances = [];
 
     // --- MODAL CONTROLS ---
-    const appModal = document.getElementById('appModal');
     let currentModalMode = '';
 
     function openModal(mode, data = {}) {
-        currentModalMode = mode;
-        const title = document.getElementById('modalTitle');
-        const submitBtn = document.getElementById('modalSubmitButton');
-        const nameInput = document.getElementById('modalPlayerName');
-        const levelInput = document.getElementById('modalPlayerLevel');
-        const idInput = document.getElementById('editPlayerId');
-
-        nameInput.value = data.name || '';
-        levelInput.value = data.level || '';
-        idInput.value = data.id || '';
-
-        switch (mode) {
-            case 'addPlayer':
-                title.innerText = 'Cadastrar Novo Jogador';
-                submitBtn.innerText = 'Salvar Jogador';
-                break;
-            case 'editPlayer':
-                title.innerText = 'Editar Jogador';
-                submitBtn.innerText = 'Salvar Alterações';
-                break;
-            case 'addGuest':
-                title.innerText = 'Adicionar Convidado';
-                submitBtn.innerText = 'Adicionar à Lista';
-                break;
+        let modal;
+        if (mode === 'delete') {
+            modal = document.getElementById('deleteModal');
+            document.getElementById('deletePlayerName').innerText = data.name;
+            document.getElementById('deletePlayerId').value = data.id;
+        } else {
+            modal = document.getElementById('formModal');
+            currentModalMode = mode;
+            const title = document.getElementById('modalTitle');
+            const submitBtn = document.getElementById('modalSubmitButton');
+            document.getElementById('modalPlayerName').value = data.name || '';
+            document.getElementById('modalPlayerLevel').value = data.level || '';
+            document.getElementById('editPlayerId').value = data.id || '';
+            
+            switch (mode) {
+                case 'addPlayer':
+                    title.innerText = 'Cadastrar Novo Jogador';
+                    submitBtn.innerText = 'Salvar Jogador';
+                    break;
+                case 'editPlayer':
+                    title.innerText = 'Editar Jogador';
+                    submitBtn.innerText = 'Salvar Alterações';
+                    break;
+                case 'addGuest':
+                    title.innerText = 'Adicionar Convidado';
+                    submitBtn.innerText = 'Adicionar à Lista';
+                    break;
+            }
         }
-        appModal.classList.add('is-open');
+        modal.classList.add('is-open');
     }
 
-    function closeModal() {
-        appModal.classList.remove('is-open');
+    function closeModal(modalId) {
+        document.getElementById(modalId).classList.remove('is-open');
     }
 
     function handleFormSubmit() {
@@ -297,30 +288,24 @@
         }
 
         switch (currentModalMode) {
-            case 'addPlayer':
-                playersRef.push({ name, level });
-                break;
-            case 'editPlayer':
-                playersRef.child(id).update({ name, level });
-                break;
-            case 'addGuest':
-                addGuestToList({ name, level });
-                break;
+            case 'addPlayer': playersRef.push({ name, level }); break;
+            case 'editPlayer': playersRef.child(id).update({ name, level }); break;
+            case 'addGuest': addGuestToList({ name, level }); break;
         }
-        closeModal();
+        closeModal('formModal');
     }
     
     window.onclick = function(event) {
-        if (event.target == appModal) {
-            closeModal();
+        if (event.target.classList.contains('modal')) {
+            event.target.classList.remove('is-open');
         }
     }
 
     // --- PLAYER & GUEST MANAGEMENT ---
-    function deletePlayer(id, name) {
-        if (confirm(`Tem certeza que deseja excluir ${name}? Esta ação não pode ser desfeita.`)) {
-            playersRef.child(id).remove();
-        }
+    function confirmDelete() {
+        const id = document.getElementById('deletePlayerId').value;
+        playersRef.child(id).remove();
+        closeModal('deleteModal');
     }
 
     function addGuestToList(guestData) {
@@ -371,7 +356,7 @@
                             <button onclick='openModal("editPlayer", ${JSON.stringify(player)})'>
                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path d="M17.414 2.586a2 2 0 00-2.828 0L7 10.172V13h2.828l7.586-7.586a2 2 0 000-2.828z" /><path fill-rule="evenodd" d="M2 6a2 2 0 012-2h4a1 1 0 010 2H4v10h10v-4a1 1 0 112 0v4a2 2 0 01-2 2H4a2 2 0 01-2-2V6z" clip-rule="evenodd" /></svg>
                             </button>
-                            <button onclick="deletePlayer('${id}', '${player.name.replace(/'/g, "\\'")}')">
+                            <button onclick='openModal("delete", ${JSON.stringify(player)})'>
                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd" /></svg>
                             </button>
                         </div>
@@ -385,8 +370,6 @@
     }
 
     // --- TEAM GENERATION & DISPLAY ---
-    let generatedTeamsData = {}; // Store data for sharing
-
     function generateTeams() {
         const checkboxes = document.querySelectorAll('.player-checkbox:checked');
         let selectedPlayers = Array.from(checkboxes).map(cb => JSON.parse(cb.value));
@@ -397,9 +380,19 @@
             return;
         }
         
+        // 1. Sort by level to establish a baseline
         selectedPlayers.sort((a, b) => b.level - a.level);
 
-        let teams = [], teamSums = [], revezamento = [], numTeams = 0;
+        // 2. NEW: "Shuffle by Pairs" to introduce randomness
+        for (let i = 0; i < selectedPlayers.length - 1; i += 2) {
+            if (Math.random() > 0.5) {
+                // Swap the pair
+                [selectedPlayers[i], selectedPlayers[i+1]] = [selectedPlayers[i+1], selectedPlayers[i]];
+            }
+        }
+
+        // 3. Proceed with distribution logic
+        let teams = [], revezamento = [];
         let playersForTeams = [...selectedPlayers];
 
         if (numPlayers === 13) revezamento.push(playersForTeams.pop());
@@ -408,24 +401,21 @@
             revezamento.push(playersForTeams.pop());
         }
 
-        numTeams = (numPlayers <= 14) ? 2 : 3;
-        
-        for (let i = 0; i < numTeams; i++) {
-            teams.push([]);
-            teamSums.push(0);
-        }
+        const numTeams = (numPlayers <= 14) ? 2 : 3;
+        for (let i = 0; i < numTeams; i++) teams.push([]);
 
         playersForTeams.forEach(player => {
-            let minSumIndex = teamSums.indexOf(Math.min(...teamSums));
+            const teamLevels = teams.map(team => team.reduce((sum, p) => sum + p.level, 0));
+            let minSumIndex = teamLevels.indexOf(Math.min(...teamLevels));
             teams[minSumIndex].push(player);
-            teamSums[minSumIndex] += player.level;
         });
 
-        generatedTeamsData = { teams, revezamento }; // Save for sharing
-        displayTeams(teams, teamSums, revezamento, numPlayers);
+        generatedTeamsData = { teams, revezamento };
+        displayTeams();
     }
-
-    function displayTeams(teams, teamSums, revezamento, numPlayers) {
+    
+    function displayTeams() {
+        const { teams, revezamento } = generatedTeamsData;
         const teamsResultDiv = document.getElementById('teamsResult');
         teamsResultDiv.innerHTML = '';
         const teamsResultCard = document.getElementById('teamsResultCard');
@@ -434,40 +424,133 @@
         teamsContainer.className = 'teams-container';
 
         teams.forEach((team, index) => {
+            const teamLevel = team.reduce((sum, p) => sum + p.level, 0);
             const teamDiv = document.createElement('div');
             teamDiv.className = 'team';
-            let playersHtml = '<ul>';
-            // Sort by level (desc) for display on screen
-            team.sort((a,b) => b.level - a.level).forEach(player => {
-                playersHtml += `<li><span>${player.name} ${player.isGuest ? ' <span class="guest-tag">Convidado</span>': ''}</span> <strong>${player.level}</strong></li>`;
-            });
-            playersHtml += '</ul>';
-            teamDiv.innerHTML = `<h4>Time ${index + 1} (Nível ${teamSums[index]})</h4>${playersHtml}`;
+            teamDiv.innerHTML = `<h4 id="team-title-${index}">Time ${index + 1} (Nível ${teamLevel})</h4>
+                                 <ul class="droppable-list" id="team-list-${index}">
+                                    ${team.sort((a,b) => b.level - a.level).map(player => playerToHTML(player)).join('')}
+                                 </ul>`;
             teamsContainer.appendChild(teamDiv);
         });
         
         teamsResultDiv.appendChild(teamsContainer);
 
-        if (revezamento.length > 0) {
+        if (revezamento) {
             const revezamentoDiv = document.createElement('div');
             revezamentoDiv.className = 'revezamento';
-            let revezamentoHtml = '<ul>';
-             revezamento.forEach(player => {
-                revezamentoHtml += `<li><span>${player.name}</span> <strong>${player.level}</strong></li>`;
-            });
-            revezamentoHtml += '</ul>';
-            let obsText = numPlayers === 13 ? '1 jogador no revezamento.' : '1 jogador no revezamento para cada time.';
-            revezamentoDiv.innerHTML = `<h4>Revezamento / Fora</h4><p>${obsText}</p>${revezamentoHtml}`;
+            revezamentoDiv.innerHTML = `<h4>Revezamento</h4>
+                                        <ul class="droppable-list" id="revezamento-list">
+                                           ${revezamento.map(player => playerToHTML(player)).join('')}
+                                        </ul>`;
             teamsResultDiv.appendChild(revezamentoDiv);
-        } else if (numPlayers >= 15 && numPlayers <= 17) {
-            teamsResultDiv.innerHTML += '<p style="text-align:center; margin-top: 20px;"><strong>Observação:</strong> O último time será completado com jogadores dos outros times.</p>';
         }
 
         teamsResultCard.style.display = 'block';
         teamsResultCard.scrollIntoView({ behavior: 'smooth' });
+        if(isEditMode) {
+             toggleEditMode(); // Turn off edit mode if it was on before regenerating
+        }
+    }
+    
+    function playerToHTML(player) {
+        // We use a unique ID for guests but Firebase key for registered players
+        const playerId = player.isGuest ? player.id : player.id;
+        return `<li data-player-id="${playerId}" data-player-level="${player.level}">
+                    <span>${player.name} ${player.isGuest ? ' <span class="guest-tag">Convidado</span>': ''}</span> 
+                    <strong>${player.level}</strong>
+                </li>`;
     }
 
+    // --- DRAG AND DROP FUNCTIONALITY ---
+    function toggleEditMode() {
+        isEditMode = !isEditMode;
+        const btn = document.getElementById('editTeamsBtn');
+        const teamsResultDiv = document.getElementById('teamsResult');
+        
+        if (isEditMode) {
+            btn.textContent = 'Finalizar Edição';
+            btn.classList.add('btn-secondary');
+            btn.classList.remove('btn-warning');
+            teamsResultDiv.classList.add('editable');
+            initDragAndDrop();
+        } else {
+            btn.textContent = 'Editar Times';
+            btn.classList.remove('btn-secondary');
+            btn.classList.add('btn-warning');
+            teamsResultDiv.classList.remove('editable');
+            sortableInstances.forEach(s => s.destroy());
+            sortableInstances = [];
+        }
+    }
+
+    function initDragAndDrop() {
+        const lists = document.querySelectorAll('.droppable-list');
+        lists.forEach(list => {
+            const sortable = new Sortable(list, {
+                group: 'teams',
+                animation: 150,
+                ghostClass: 'sortable-ghost',
+                onEnd: handleDropEvent,
+            });
+            sortableInstances.push(sortable);
+        });
+    }
+
+    function handleDropEvent(evt) {
+        // Recalculate levels based on the current state of the DOM
+        updateTeamLevelsFromDOM();
+    }
+
+    function updateTeamLevelsFromDOM() {
+        // Update Teams
+        generatedTeamsData.teams.forEach((team, index) => {
+            const teamListEl = document.getElementById(`team-list-${index}`);
+            const playerElements = teamListEl.querySelectorAll('li');
+            let newLevel = 0;
+            playerElements.forEach(el => {
+                newLevel += parseInt(el.dataset.playerLevel);
+            });
+            document.getElementById(`team-title-${index}`).innerText = `Time ${index + 1} (Nível ${newLevel})`;
+        });
+
+        // The data for sharing needs to be updated before sharing
+        updateDataStructureFromDOM();
+    }
+
+    function updateDataStructureFromDOM() {
+        const allPlayers = [...generatedTeamsData.teams.flat(), ...generatedTeamsData.revezamento];
+        let newTeams = [];
+        let newRevezamento = [];
+
+        generatedTeamsData.teams.forEach((_, index) => {
+            const teamListEl = document.getElementById(`team-list-${index}`);
+            const playerElements = teamListEl.querySelectorAll('li');
+            let currentTeamPlayers = [];
+            playerElements.forEach(el => {
+                const player = allPlayers.find(p => p.id == el.dataset.playerId);
+                if (player) currentTeamPlayers.push(player);
+            });
+            newTeams.push(currentTeamPlayers);
+        });
+
+        const revezamentoListEl = document.getElementById('revezamento-list');
+        const revezamentoElements = revezamentoListEl.querySelectorAll('li');
+        revezamentoElements.forEach(el => {
+            const player = allPlayers.find(p => p.id == el.dataset.playerId);
+            if (player) newRevezamento.push(player);
+        });
+
+        generatedTeamsData = { teams: newTeams, revezamento: newRevezamento };
+    }
+    
+    // --- SHARE FUNCTIONALITY ---
     function shareTeams() {
+        if (isEditMode) {
+             alert("Por favor, finalize a edição antes de compartilhar.");
+             return;
+        }
+        
         const { teams, revezamento } = generatedTeamsData;
         if (!teams || teams.length === 0) {
             alert("Primeiro, gere os times para poder compartilhar!");
@@ -479,14 +562,13 @@
 
         teams.forEach((team, index) => {
             shareHtml += `<div class="share-team"><h3>Time ${index + 1}</h3><ul>`;
-            // Sort by name for the shared image
             team.sort((a,b) => a.name.localeCompare(b.name)).forEach(player => {
                 shareHtml += `<li>${player.name}</li>`;
             });
             shareHtml += `</ul></div>`;
         });
         
-        shareHtml += '</div>'; // close grid
+        shareHtml += '</div>';
 
         if(revezamento.length > 0) {
             shareHtml += `<div class="share-team share-revezamento" style="margin-top: 20px;"><h3>Revezamento</h3><ul>`;
@@ -497,26 +579,23 @@
         }
 
         shareContainer.innerHTML = shareHtml;
-        shareContainer.style.display = 'block'; // Make it visible for html2canvas
+        shareContainer.style.display = 'block';
 
         html2canvas(shareContainer, { scale: 2 }).then(canvas => {
             canvas.toBlob(function(blob) {
                 const file = new File([blob], "times-volei.png", { type: "image/png" });
                 if (navigator.canShare && navigator.canShare({ files: [file] })) {
-                    navigator.share({ files: [file], title: 'Times da Patota de Vôlei', text: 'Confira a formação dos times de hoje!' })
-                    .catch(error => console.log('Erro ao compartilhar', error));
+                    navigator.share({ files: [file], title: 'Sorteio Times', text: 'Escalação dos times de hoje, mudanças podem ser realizadas durante o jogo' })
                 } else {
                      try {
                         const link = document.createElement('a');
                         link.href = URL.createObjectURL(blob);
                         link.download = 'times-volei.png';
                         link.click();
-                     } catch (err) {
-                        alert('Seu navegador não suporta compartilhamento. A imagem será baixada.');
-                     }
+                     } catch (err) { alert('Seu navegador não suporta compartilhamento. A imagem será baixada.'); }
                 }
             }, 'image/png');
-             shareContainer.style.display = 'none'; // Hide it again
+             shareContainer.style.display = 'none';
         });
     }
 
